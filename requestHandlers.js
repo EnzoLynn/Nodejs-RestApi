@@ -26,19 +26,19 @@ function getMsg(req, res) {
 function nodejsLogin(req, res) {
     console.log("Request handler 'nodejsLogin' was called.========");
     var restApi = require('./restApi.js');
-    var query = require("querystring");    
+    var query = require("querystring");
     var postdata = "";
     req.on("data", function(postchunk) {
-        postdata += postchunk.toString(); 
-    }) 
-    //POST结束输出结果
-    req.on("end", function() { 
-        console.log(JSON.stringify(query.parse(postdata))+'===========');
-        restApi.ajax(res,{
-           host:'127.0.0.1',
-           port:818,
-           path:'/login/ajaxLogin'
-        },query.parse(postdata));
+            postdata += postchunk.toString();
+        })
+        //POST结束输出结果
+    req.on("end", function() {
+        console.log(JSON.stringify(query.parse(postdata)) + '===========');
+        restApi.ajax(res, {
+            host: '127.0.0.1',
+            port: 818,
+            path: '/login/ajaxLogin'
+        }, query.parse(postdata));
     })
 
 }
@@ -46,32 +46,37 @@ function nodejsLogin(req, res) {
 function loadStatic(req, res, type) {
     var fs = require('fs');
     var url = require('url');
-    var html = fs.readFileSync('.' + url.parse(req.url).pathname);
 
-    if (type) {
-        if (type == "css") {
-            console.log("css");
+    //var html = fs.readFileSync('.' + url.parse(req.url).pathname);
+    fs.readFile('.' + url.parse(req.url).pathname, function(err, html) {
+       
+        if (type) {
+            if (type == "css") {
+                console.log("css");
+                res.writeHeader(200, {
+                    "Content-Type": "text/css"
+                });
+            } else if (type == "js") {
+                res.writeHeader(200, {
+                    "Content-Type": "application/javascript"
+                });
+            } else if (type == "img") {
+                res.writeHeader(200, {
+                    "Content-Type": "image/gif"
+                });
+            }
+
+        } else {
             res.writeHeader(200, {
-                "Content-Type": "text/css"
-            });
-        } else if (type == "js") {
-            res.writeHeader(200, {
-                "Content-Type": "application/javascript"
-            });
-        } else if (type == "img") {
-            res.writeHeader(200, {
-                "Content-Type": "image/gif"
+                "Content-Type": "text/html"
             });
         }
 
-    } else {
-        res.writeHeader(200, {
-            "Content-Type": "text/html"
-        });
-    }
+        res.write(html);
+        res.end();
+    });
 
-    res.write(html);
-    res.end();
+
 
 }
 
